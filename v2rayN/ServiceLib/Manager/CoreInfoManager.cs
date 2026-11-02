@@ -193,7 +193,9 @@ public sealed class CoreInfoManager
                 {
                     CoreType = ECoreType.hysteria,
                     CoreExes = ["hysteria"],
-                    Arguments = "",
+                    // hysteria 的客户端模式必须显式声明：hysteria client -c <config>
+                    // 原为空字符串，内核收到裸配置路径会报 "unknown command" 并立即退出。
+                    Arguments = "client -c {0}",
                     Url = GetCoreUrl(ECoreType.hysteria),
                 },
 
@@ -246,7 +248,8 @@ public sealed class CoreInfoManager
                 {
                     CoreType = ECoreType.hysteria2,
                     CoreExes = ["hysteria-windows-amd64", "hysteria-linux-amd64", "hysteria"],
-                    Arguments = "",
+                    // 与 hysteria v1 一致：客户端模式需显式声明
+                    Arguments = "client -c {0}",
                     Url = GetCoreUrl(ECoreType.hysteria2),
                 },
 

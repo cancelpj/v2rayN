@@ -71,6 +71,25 @@ public static class CoreConfigHandler
             File.Copy(addressFileName, fileName);
             File.SetAttributes(fileName, FileAttributes.Normal); //Copy will keep the attributes of addressFileName, so we need to add write permissions to fileName just in case of addressFileName is a read-only file.
 
+            //修正 Custom 配置的本地监听端口，使其与 v2rayN 的入站端口一致。
+            //否则除 mihomo 外的内核仍按配置内的旧端口（1080/3080/4080）监听，
+            //而系统代理指向 Inbound.LocalPort，导致「切换节点后连不上」。
+            try
+            {
+                var localPort = AppManager.Instance.GetLocalPort(EInboundProtocol.socks);
+                var original = await File.ReadAllTextAsync(fileName);
+                var fixedContent = CustomConfigPortFixer.Fix(node.CoreType ?? ECoreType.v2rayN, original, localPort);
+                if (!string.IsNullOrEmpty(fixedContent) && fixedContent != original)
+                {
+                    await File.WriteAllTextAsync(fileName, fixedContent);
+                    Logging.SaveLog($"CustomConfigPortFixer: {node.Remarks} port -> {localPort}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logging.SaveLog("CustomConfigPortFixer", ex);
+            }
+
             //check again
             if (!File.Exists(fileName))
             {
