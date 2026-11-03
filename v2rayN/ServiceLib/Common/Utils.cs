@@ -937,6 +937,37 @@ public class Utils
         return Global.AppName;
     }
 
+    /// <summary>
+    /// 获取窗口标题栏显示的版本串。
+    ///
+    /// 与 GetVersion 的区别：
+    ///   GetVersion 用的是 Global.AppName（"v2rayN"），这个是二开标识"v2rayN-Custom"。
+    ///   只影响标题显示，不涉及任何路径、协议或数据目录。
+    /// </summary>
+    /// <param name="blFull">true=带架构信息，false=紧凑格式</param>
+    /// <param name="blAdminSuffix">true=末尾追加管理员运行提示</param>
+    public static string GetWindowTitle(bool blFull = true, bool blAdminSuffix = false)
+    {
+        var name = Global.AppTitleName.IsNullOrEmpty() ? Global.AppName : Global.AppTitleName;
+        try
+        {
+            var ver = blFull
+                ? $"{name} - V{GetVersionInfo()} - {RuntimeInformation.ProcessArchitecture}"
+                : $"{name}/{GetVersionInfo()}";
+            if (blAdminSuffix)
+            {
+                ver += $" - {(IsAdministrator() ? ResUI.RunAsAdmin : ResUI.NotRunAsAdmin)}";
+            }
+            return ver;
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog(_tag, ex);
+        }
+
+        return name;
+    }
+
     public static string GetVersionInfo()
     {
         try

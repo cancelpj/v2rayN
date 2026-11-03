@@ -3,6 +3,20 @@ namespace ServiceLib;
 public class Global
 {
     public const string AppName = "v2rayN";
+
+    /// <summary>
+    /// 二开版在窗口标题栏显示的产品名标识。
+    ///
+    /// 为什么不直接改 AppName：
+    ///   AppName 被用在用户数据路径上（WebDav 备份目录 v2rayN_backup、
+    ///   Linux autostart 的 v2rayN.desktop、macOS LaunchAgent 名等），
+    ///   一旦改动会导致既有用户的备份数据、开机自启项「找不到」。
+    ///   而窗口标题只是显示层，不涉及任何路径与协议，单独一个常量最安全。
+    ///
+    /// 取值为空串时，标题退化为上游原始的 v2rayN。
+    /// </summary>
+    public const string AppTitleName = "v2rayN-Custom";
+
     public const string GithubUrl = "https://github.com";
     public const string GithubApiUrl = "https://api.github.com/repos";
     public const string GeoUrl = "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/{0}.dat";

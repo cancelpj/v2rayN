@@ -136,7 +136,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
         if (Utils.IsWindows())
         {
-            Title = $"{Utils.GetVersion()} - {(Utils.IsAdministrator() ? ResUI.RunAsAdmin : ResUI.NotRunAsAdmin)}";
+            Title = Utils.GetWindowTitle(blFull: true, blAdminSuffix: true);
 
             if (!Design.IsDesignMode)
             {
@@ -146,7 +146,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         }
         else
         {
-            Title = $"{Utils.GetVersion()}";
+            Title = Utils.GetWindowTitle(blFull: true);
             menuAddServerViaScan.IsVisible = false;
         }
 
