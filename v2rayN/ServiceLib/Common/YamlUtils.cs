@@ -31,17 +31,41 @@ public class YamlUtils
         //}
         try
         {
-            var yaml = new YamlStream();
-            using var reader = new StringReader(str);
-            yaml.Load(reader);
-            var rootNode = (YamlMappingNode)yaml.Documents[0].RootNode;
-            return rootNode;
+            return ParseYaml(str);
         }
         catch (Exception ex)
         {
             Logging.SaveLog(_tag, ex);
-            return new YamlMappingNode();
         }
+
+        // 2026-11-03：部分机场的 clash 订阅源文件把整份配置写了两遍，
+        // 顶层键重复会让 YamlStream.Load 抛 "Duplicate key xxx"，
+        // 整份配置作废 → 生成的 clash 配置丢失 proxy-groups → 内核解析失败。
+        // 这里做一次兜底：折叠重复的顶层键（保留后者，与旧版 Deserializer 语义一致）后重试。
+        try
+        {
+            var fixedText = YamlDuplicateKeyFixer.Fix(str);
+            if (fixedText.IsNotEmpty())
+            {
+                var node = ParseYaml(fixedText);
+                Logging.SaveLog("YamlUtils.FromYaml: 顶层重复键已折叠后重试解析成功");
+                return node;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog($"{_tag}-DuplicateKeyFixer", ex);
+        }
+
+        return new YamlMappingNode();
+    }
+
+    private static YamlMappingNode ParseYaml(string str)
+    {
+        var yaml = new YamlStream();
+        using var reader = new StringReader(str);
+        yaml.Load(reader);
+        return (YamlMappingNode)yaml.Documents[0].RootNode;
     }
 
     /// <summary>
